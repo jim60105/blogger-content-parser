@@ -6,8 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
-  "author": "",
-  "license": "ISC",
+  "author": "jim60105",
+  "license": "GPL-3.0-only",
   "description": "",
   "dependencies": {
     "html-entities": "^2.5.2",
