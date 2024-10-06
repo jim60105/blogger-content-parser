@@ -40,7 +40,7 @@ function extractEntryInfo(entry) {
     const updatedDate = new Date(entry.updated[0]);
     const updated = updatedDate.toISOString();
 
-    const draft = entry['app:draft'] && entry['app:draft'][0] === 'yes' ? true : false;
+    const draft = entry['app:control']?.[0]?.['app:draft']?.[0] === 'yes';
 
     const url = alternateLink ? new URL(alternateLink.$.href).pathname : null;
 
@@ -102,8 +102,8 @@ async function main(inputFile, outputDir) {
         const footer = parsedXml.feed.entry
             .filter(
                 (entry) =>
-                    (typeof entry['id'] === 'string' || entry['id'] instanceof String) &&
-                    entry['id'].endsWith('BLOG_POST_FEED_FOOTER')
+                    (typeof entry['id'][0] === 'string' || entry['id'][0] instanceof String) &&
+                    entry['id'][0].endsWith('BLOG_POST_FEED_FOOTER')
             )
             .map((entry) => entry.content[0]._)[0];
 
