@@ -1,8 +1,9 @@
-const fs = require('fs');
-const xml2js = require('xml2js');
-const path = require('path');
-const { decode } = require('html-entities');
-var slugify = require('slugify');
+import fs from 'fs';
+import xml2js from 'xml2js';
+import path from 'path';
+import { decode } from 'html-entities';
+import slugify from 'slugify';
+import { NodeHtmlMarkdown } from 'node-html-markdown';
 
 // 讀取 XML 文件
 function readXmlFile(filePath) {
@@ -70,13 +71,16 @@ tags = [${post.categories.map((category) => `"${category}"`).join(', ')}]
 }
 
 // 將內容寫入文件
-function writeContentToFile(content, slug, outputDir) {
+async function writeContentToFile(content, slug, outputDir) {
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
     const filePath = path.join(outputDir, `${slug}.md`);
-    fs.writeFileSync(filePath, content);
-    console.log(`File saved: ${filePath}`);
+    return fs.writeFile(filePath, content, 'utf8', (err) => {
+        if (err) {
+            console.error('Error writing file:', err);
+        }
+    });
 }
 
 // 主函數
@@ -103,7 +107,7 @@ async function main(inputFile, outputDir) {
             )
             .map((entry) => entry.content[0]._)[0];
 
-        entries.forEach((entry) => {
+        entries.forEach(async (entry) => {
             const post = extractEntryInfo(entry);
             if (!post.content) {
                 console.log('Skipping entry due to missing content');
@@ -119,7 +123,11 @@ async function main(inputFile, outputDir) {
 
             const section = post.categories[0] || 'uncategorized';
 
-            writeContentToFile(frontMatter + content, slug, `${outputDir}/${section}`);
+            await writeContentToFile(frontMatter + content, slug, `${outputDir}/${section}`);
+
+            const markdown = NodeHtmlMarkdown.translate(content);
+            await writeContentToFile(frontMatter + markdown, slug, `${outputDir}_md/${section}`);
+            console.log(`File saved: ${slug}`);
         });
 
         console.log('處理完成。輸出文件已保存到 ' + outputDir + ' 目錄。');

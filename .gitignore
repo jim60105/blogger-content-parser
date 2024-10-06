@@ -130,7 +130,7 @@ dist
 .pnp.*
 
 # Output directory
-output
+output*
 
 # Input file (blogger output xml)
 blog-*.xml
