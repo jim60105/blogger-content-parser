@@ -1,6 +1,8 @@
 # Blogger Content Parser
 
-A JavaScript project designed to parse and extract content from Blogger XML files and convert it into Markdown format.
+A script designed to moving from Google Blogger to the static site generator (Zola).
+
+Parse and extract content from Blogger backup XML files and convert it into Markdown format.
 
 ## Installation
 
@@ -14,11 +16,9 @@ npm install
 
 ### Getting the Blogger XML file
 
-Get the backup of your Blogger
+![blogger](https://github.com/user-attachments/assets/0695622a-2b07-469f-af47-6bf3ddf84b26)
 
 ## Parse the Blogger XML file
-
-To run the parser, use the following command:
 
 ```bash
 node xml-content-extractor.js <inputFile> <outputDir>
@@ -26,7 +26,7 @@ node xml-content-extractor.js <inputFile> <outputDir>
 
 Replace `<inputFile>` with the path to your Blogger XML file and `<outputDir>` with the desired output directory.
 
-## Example
+Example
 
 ```bash
 node xml-content-extractor.js blog-10-05-2024.xml output
@@ -36,7 +36,7 @@ This will parse `blog-10-05-2024.xml` and save the converted Markdown files in t
 
 ## License
 
-<img src="https://github.com/jim60105/docker-yt-dlp/assets/16995691/f33f8175-af23-4a8a-ad69-efd17a7625f4" alt="gplv3" width="300" />
+<img src="https://github.com/user-attachments/assets/3c9ca468-0e2c-41b8-a1ab-9a91181eedfc" alt="gplv3" width="300" />
 
 [GNU GENERAL PUBLIC LICENSE Version 3](LICENSE)
 
