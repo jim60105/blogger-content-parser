@@ -1,0 +1,16 @@
+{
+  "name": "blogger-content-parser",
+  "version": "1.0.0",
+  "main": "xml-content-extractor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "html-entities": "^2.5.2",
+    "slugify": "^1.6.6",
+    "xml2js": "^0.6.2"
+  }
+}
