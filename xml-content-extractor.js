@@ -85,6 +85,11 @@ async function writeContentToFile(content, slug, outputDir) {
 
 // 主函數
 async function main(inputFile, outputDir) {
+    if (!inputFile || !outputDir) {
+        console.log('Usage: node xml-content-extractor.js <inputFile> <outputDir>');
+        process.exit(1);
+    }
+
     try {
         const xmlContent = readXmlFile(inputFile);
         const parsedXml = await parseXml(xmlContent);
