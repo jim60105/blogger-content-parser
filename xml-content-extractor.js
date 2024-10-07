@@ -133,7 +133,19 @@ async function main(inputFile, outputDir) {
             await writeContentToFile(frontMatter + content, slug, `${outputDir}/${section}`);
 
             const markdown = NodeHtmlMarkdown.translate(content);
-            await writeContentToFile(frontMatter + markdown, slug, `${outputDir}_md/${section}`);
+
+            // 將 Markdown 內容進行處理，去除每行開頭和結尾的多餘空格
+            // 僅處理單獨存在的空格，不處理兩個以上的空格
+            const cleanedMarkdown = markdown
+                .split('\n')
+                .map((line) => line.replace(/^ (?! )/, '').replace(/(?<! ) $/, ''))
+                .join('\n');
+
+            await writeContentToFile(
+                frontMatter + cleanedMarkdown,
+                slug,
+                `${outputDir}_md/${section}`
+            );
             console.log(`File saved: ${slug}`);
         });
     } catch (error) {
