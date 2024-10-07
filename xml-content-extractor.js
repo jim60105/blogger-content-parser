@@ -5,34 +5,27 @@ import { decode } from 'html-entities';
 import slugify from 'slugify';
 import { NodeHtmlMarkdown } from 'node-html-markdown';
 
-// 讀取 XML 文件
 function readXmlFile(filePath) {
     return fs.readFileSync(filePath, 'utf-8');
 }
 
-// 解析 XML 內容
 async function parseXml(xmlContent) {
     const parser = new xml2js.Parser();
     return await parser.parseStringPromise(xmlContent);
 }
 
-// 從 entry 中提取所需信息
 function extractEntryInfo(entry) {
     const rawContent = entry.content[0]._;
-    // 使用 html-entities 的 decode 函數將 HTML 實體進行解碼
     const content = decode(rawContent);
 
-    // e.g. https://blog.maki0419.com/2021/12/fortigate-passthrough-youtube.html
     const alternateLink = entry.link.find(
         (link) => link.$.rel === 'alternate' && link.$.type === 'text/html'
     );
     const slug = alternateLink ? path.basename(alternateLink.$.href, '.html') : null;
 
-    // 解析 Front Matter
-    // 這裡我是使用 Zola 的 Front Matter 格式，因為我要遷移到 Zola
-    // https://www.getzola.org/documentation/content/page/
     const title = entry.title[0]._;
-    const description = '';
+    // There is no description in the Blogger XML
+    const description = title;
 
     const publishedDate = new Date(entry.published[0]);
     const date = publishedDate.toISOString();
@@ -48,13 +41,18 @@ function extractEntryInfo(entry) {
         .filter((category) => category.$.scheme === 'http://www.blogger.com/atom/ns#')
         .map((category) => category.$.term);
 
-    return { content, slug, title, description, date, updated, draft, url, categories };
+    const firstImage = content.match(/<img[^>]+src="([^">]+)"/);
+
+    return { content, slug, title, description, date, updated, draft, url, categories, firstImage };
 }
 
 function removeFooter(content, footer) {
     return content.replace(`<div class="blogger-post-footer">${footer}</div>`, '');
 }
 
+// TODO: Modify according to your needs
+// Here I am using Zola Front Matter format because I am migrating to Zola
+// https://www.getzola.org/documentation/content/page/
 function buildFrontMatter(post) {
     return `+++
 title = "${post.title}"
@@ -66,16 +64,21 @@ aliases = ["${post.url}"]
 
 [taxonomies]
 tags = [${post.categories.map((category) => `"${category}"`).join(', ')}]
+
+[extra]
+banner = "${post.firstImage ? post.firstImage[1] : ''}"
 +++
 `;
 }
 
-// 將內容寫入文件
 async function writeContentToFile(content, slug, outputDir) {
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
-    const filePath = path.join(outputDir, `${slug}.md`);
+    let filePath = path.join(outputDir, `${slug}.md`);
+    if (fs.existsSync(filePath)) {
+        filePath = path.join(outputDir, `${slug}-${Math.random().toString(36).substring(7)}.md`);
+    }
     return fs.writeFile(filePath, content, 'utf8', (err) => {
         if (err) {
             console.error('Error writing file:', err);
@@ -83,7 +86,6 @@ async function writeContentToFile(content, slug, outputDir) {
     });
 }
 
-// 主函數
 async function main(inputFile, outputDir) {
     if (!inputFile || !outputDir) {
         console.log('Usage: node xml-content-extractor.js <inputFile> <outputDir>');
@@ -134,8 +136,6 @@ async function main(inputFile, outputDir) {
             await writeContentToFile(frontMatter + markdown, slug, `${outputDir}_md/${section}`);
             console.log(`File saved: ${slug}`);
         });
-
-        console.log('處理完成。輸出文件已保存到 ' + outputDir + ' 目錄。');
     } catch (error) {
         console.error('發生錯誤：', error);
     }
