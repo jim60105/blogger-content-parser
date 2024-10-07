@@ -55,8 +55,8 @@ function removeFooter(content, footer) {
 // https://www.getzola.org/documentation/content/page/
 function buildFrontMatter(post) {
     return `+++
-title = "${post.title}"
-description = "${post.description}"
+title = "${post.title.replace(/"/g, '\\"')}"
+description = "${post.description.replace(/"/g, '\\"')}"
 date = ${post.date}
 updated = ${post.updated}
 draft = ${post.draft}
