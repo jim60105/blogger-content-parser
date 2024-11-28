@@ -86,6 +86,19 @@ async function writeContentToFile(content, slug, outputDir) {
     });
 }
 
+function isPostEntry(entry) {
+    return (
+        entry.content &&
+        entry.link &&
+        entry.title &&
+        entry.category.some(
+            (category) =>
+                category.$.scheme === 'http://schemas.google.com/g/2005#kind' &&
+                category.$.term === 'http://schemas.google.com/blogger/2008/kind#post'
+        )
+    );
+}
+
 async function main(inputFile, outputDir) {
     if (!inputFile || !outputDir) {
         console.log('Usage: node xml-content-extractor.js <inputFile> <outputDir>');
@@ -95,15 +108,9 @@ async function main(inputFile, outputDir) {
     try {
         const xmlContent = readXmlFile(inputFile);
         const parsedXml = await parseXml(xmlContent);
+
         // Get posts
-        const entries = parsedXml.feed.entry.filter(
-            (entry) =>
-                entry.content &&
-                entry.link &&
-                entry.title &&
-                // 留言數，僅文章有這個屬性
-                (typeof entry['thr:total'] === 'Array' || entry['thr:total'] instanceof Array)
-        );
+        const entries = parsedXml.feed.entry.filter(isPostEntry);
 
         // Get footer
         const footer = parsedXml.feed.entry
